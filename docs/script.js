@@ -11,6 +11,47 @@ const inputDuration = document.querySelector(".form__input--duration");
 const inputCadence = document.querySelector(".form__input--cadence");
 const inputElevation = document.querySelector(".form__input--elevation");
 
+class Workout {
+  date = new Date();
+  id = (Date.now() + "").slice(-10);
+
+  constructor(coords, distance, duration) {
+    this.coords = coords; // [lat, long]
+    this.distance = distance; // in km
+    this.duration = duration; // in min
+  }
+}
+
+class Running extends Workout {
+  constructor(coords, distance, duration, cadence) {
+    super(coords, distance, duration);
+    this.cadence = cadence;
+    this.calcPace();
+  }
+
+  calcPace() {
+    // min/km
+    this.pace = this.duration / this.distance;
+    return this.pace;
+  }
+}
+
+class Cycling extends Workout {
+  constructor(coords, distance, duration, elevationGain) {
+    super(coords, distance, duration);
+    this.elevationGain = elevationGain;
+  }
+
+  calcSpeed() {
+    // km/h
+    this.speed = this.distance / (this.duration / 60);
+    return this.speed;
+  }
+}
+
+const run = new Running([30, -12], 5.2, 24, 178);
+const cycle = new Cycling([30, -12], 27, 95, 523);
+
 // Main class app that handles the loading of the map, position-coordinates, form, displaying markers
 class App {
   #map;
@@ -30,7 +71,7 @@ class App {
   // gets the position of the user
   _getPosition() {
     if (navigator.geolocation) {
-      // geolocation api, fist function is when successful other when not
+      // geolocation api, first function is when successful other when not
       navigator.geolocation.getCurrentPosition(
         this._loadMap.bind(this),
         function () {
@@ -44,6 +85,7 @@ class App {
   _loadMap(position) {
     const { latitude } = position.coords;
     const { longitude } = position.coords;
+    console.log(position);
     console.log(latitude, longitude);
     console.log(`https://www.google.com/maps/@${latitude},${longitude}`);
 
