@@ -56,6 +56,7 @@ const cycle = new Cycling([30, -12], 27, 95, 523);
 class App {
   #map;
   #mapEvent;
+  #workouts = [];
 
   constructor() {
     // gets the users position on load
@@ -115,9 +116,59 @@ class App {
     inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
   }
 
-  // creates a new workout
+  // Creates a new workout
   _newWorkout(e) {
+    const validInputs = (...inputs) =>
+      inputs.every((inp) => Number.isFinite(inp));
+    const allPositive = (...inputs) => inputs.every((inp) => inp > 0);
+
     e.preventDefault();
+
+    // get data form
+    const type = inputType.value;
+    const distance = +inputDistance.value;
+    const duration = +inputDuration.value;
+
+    // gets coordinates on click
+    const { lat, lng } = this.#mapEvent.latlng;
+    const clickCoord = [lat, lng];
+
+    let workout;
+
+    // if running, create running object
+    if (type === "running") {
+      const cadence = +inputCadence.value;
+
+      // check if data is valid
+      if (
+        !validInputs(distance, duration, cadence) ||
+        !allPositive(distance, duration, cadence)
+      )
+        return alert("Inputs have to be positive numbers");
+
+      // create the object
+      workout = new Running(clickCoord, distance, duration, cadence);
+    }
+
+    // if cycling, create running object
+    if (type === "cycling") {
+      const elevation = +inputElevation.value;
+
+      // check if data is valid
+      if (
+        !validInputs(distance, duration, elevation) ||
+        !allPositive(distance, duration)
+      )
+        return alert("Inputs have to be positive numbers");
+
+      // create the object
+      workout = new Cycling(clickCoord, distance, duration, elevation);
+    }
+
+    // add object to workout array
+    this.#workouts.push(workout);
+
+    // render workout on list
 
     // clear input fields
     inputDistance.value =
@@ -127,8 +178,6 @@ class App {
         "";
 
     // display marker
-    const { lat, lng } = this.#mapEvent.latlng;
-    const clickCoord = [lat, lng];
 
     L.marker(clickCoord, {
       riseOnHover: true,
