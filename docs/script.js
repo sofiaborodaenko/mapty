@@ -95,8 +95,10 @@ class App {
     // deletes all the workouts on the local storage
     deleteWorkouts.addEventListener("click", this._reset);
 
+    // removes or adds the buttons
     this._removeButtons();
 
+    // sorts the workouts
     sortWorkouts.addEventListener("click", this._sortByDistance.bind(this));
   }
 
