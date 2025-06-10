@@ -12,6 +12,8 @@ const allBtns = document.querySelector(".buttons");
 const deleteWorkouts = document.querySelector(".btn--delete");
 const sortWorkouts = document.querySelector(".btn--sort");
 
+const alertNotif = document.querySelector(".notification");
+
 class Workout {
   date = new Date();
   id = (Date.now() + "").slice(-10);
@@ -108,9 +110,7 @@ class App {
       // geolocation api, first function is when successful other when not
       navigator.geolocation.getCurrentPosition(
         this._loadMap.bind(this),
-        function () {
-          alert("Could not get your position!");
-        }
+        this._alert
       );
     }
   }
@@ -374,6 +374,11 @@ class App {
 
     this.#sortedWorkouts.forEach((workout) => this._renderWorkout(workout));
     this.#sorted = !this.#sorted;
+  }
+
+  _alert() {
+    alertNotif.classList.remove("hidden");
+    setTimeout(() => alertNotif.classList.add("hidden"), 3000);
   }
 }
 
