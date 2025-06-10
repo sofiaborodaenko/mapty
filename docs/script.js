@@ -76,6 +76,10 @@ class App {
     // gets the users position on load
     this._getPosition();
 
+    // get data from local storage
+    this._getLocalStorage();
+
+    // Attaching event handlers
     // once the form is submitted
     form.addEventListener("submit", this._newWorkout.bind(this));
 
@@ -102,10 +106,6 @@ class App {
   _loadMap(position) {
     const { latitude } = position.coords;
     const { longitude } = position.coords;
-    console.log(position);
-    console.log(latitude, longitude);
-    console.log(`https://www.google.com/maps/@${latitude},${longitude}`);
-
     const coords = [latitude, longitude];
 
     this.#map = L.map("map").setView(coords, this.#mapZoomLevel);
@@ -117,6 +117,9 @@ class App {
 
     // handling clicks on map
     this.#map.on("click", this._showForm.bind(this));
+
+    // renders the marker if there is data in local storage
+    this.#workouts.forEach((workout) => this._renderWorkoutMarker(workout));
   }
 
   // Displays the form in the sidebar
@@ -206,6 +209,9 @@ class App {
 
     // hide form
     this._hideForm();
+
+    // set local storage to all workouts
+    this._setLocalStorage();
   }
 
   // Renders the marker on the map
@@ -233,7 +239,7 @@ class App {
   _renderWorkout(workout) {
     let html = `
         <li class="workout workout--${workout.type}" data-id="${workout.id}">
-          <h2 class="workout__title">Running on April 14</h2>
+          <h2 class="workout__title">${workout.description}</h2>
           <div class="workout__details">
             <span class="workout__icon">${
               workout.type === "running" ? "🏃‍♂️" : "🚴‍♀️"
@@ -302,6 +308,26 @@ class App {
         duration: 1,
       },
     });
+  }
+
+  _setLocalStorage() {
+    localStorage.setItem("workouts", JSON.stringify(this.#workouts));
+  }
+
+  _getLocalStorage() {
+    const data = JSON.parse(localStorage.getItem("workouts"));
+
+    if (!data) return;
+
+    // resetting the workouts array if there is data in local storage
+    this.#workouts = data;
+    this.#workouts.forEach((workout) => this._renderWorkout(workout));
+  }
+
+  // Clears the local storage
+  reset() {
+    localStorage.removeItem("workouts");
+    location.reload();
   }
 }
 
