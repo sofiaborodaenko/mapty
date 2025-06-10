@@ -155,6 +155,10 @@ a:visited {
   font-weight: 600;
 }
 
+.delete--workout {
+  float: right;
+}
+
 .form__input {
   width: 100%;
   padding: 0.3rem 1.1rem;

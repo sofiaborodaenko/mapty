@@ -94,6 +94,12 @@ class App {
     // moves to marker on click
     containerWorkouts.addEventListener("click", this._moveToPopup.bind(this));
 
+    // deletes single chosen workout
+    // containerWorkouts.addEventListener(
+    //   "click",
+    //   this._deleteSingleWorkout.bind(this)
+    // );
+
     // deletes all the workouts on the local storage
     deleteWorkouts.addEventListener("click", this._reset);
 
@@ -255,7 +261,9 @@ class App {
   _renderWorkout(workout) {
     let html = `
         <li class="workout workout--${workout.type}" data-id="${workout.id}">
-          <h2 class="workout__title">${workout.description}</h2>
+          <h2 class="workout__title">${
+            workout.description
+          } <span class="delete--workout">🗑️</span></h2>
           <div class="workout__details">
             <span class="workout__icon">${
               workout.type === "running" ? "🏃‍♂️" : "🚴‍♀️"
@@ -310,19 +318,48 @@ class App {
   _moveToPopup(e) {
     const workoutEl = e.target.closest(".workout");
 
-    if (!workoutEl) return;
+    // deletes the workout if clicked on garbage
+    if (e.target.matches(".delete--workout")) {
+      this._deleteSingleWorkout(workoutEl); // deletes the workout
+    } else {
+      if (!workoutEl) return;
 
-    // finds the workout through the id
-    const workout = this.#workouts.find(
-      (work) => work.id === workoutEl.dataset.id
+      // finds the workout through the id
+      const workout = this.#workouts.find(
+        (work) => work.id === workoutEl.dataset.id
+      );
+
+      // pans to the workout
+      this.#map.setView(workout.coords, this.#mapZoomLevel, {
+        animate: true,
+        pan: {
+          duration: 1,
+        },
+      });
+    }
+  }
+
+  // Deletes the given workout
+  _deleteSingleWorkout(workout) {
+    const allWorkoutsLogged = document.querySelectorAll(
+      ".workout.workout--running, .workout.workout--cycling"
     );
 
-    // pans to the workout
-    this.#map.setView(workout.coords, this.#mapZoomLevel, {
-      animate: true,
-      pan: {
-        duration: 1,
-      },
+    console.log(workout);
+    console.log(this.#workouts);
+
+    const workoutID = workout.dataset.id; // gets the id
+
+    const workoutIndex = this.#workouts.findIndex((w) => w.id === workoutID); // gets index
+    this.#workouts.splice(workoutIndex, 1); // removes from array
+    // resets local storage
+    this._setLocalStorage();
+    // location.reload();
+    // console.log(this.#workouts);
+
+    // removes the element from the sidebar
+    allWorkoutsLogged.forEach((el) => {
+      if (el.dataset.id === workoutID) el.remove();
     });
   }
 
