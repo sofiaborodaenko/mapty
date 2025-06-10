@@ -4,7 +4,7 @@ A dynamic map-based workout logging app built using JavaScript and Leaflet.js. U
 
 ## 🌐 Live Demo
 
-[Click here to view the live site](https://sofiaborodaenko.github.io/bankist_web/)
+[Click here to view the live site](https://sofiaborodaenko.github.io/mapty/)
 
 ## 🚀 Features
 
