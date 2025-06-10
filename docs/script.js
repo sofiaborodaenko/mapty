@@ -68,6 +68,7 @@ const cycle = new Cycling([30, -12], 27, 95, 523);
 // Main class app that handles the loading of the map, position-coordinates, form, displaying markers
 class App {
   #map;
+  #mapZoomLevel = 13;
   #mapEvent;
   #workouts = [];
 
@@ -80,9 +81,11 @@ class App {
 
     // toggle the input type
     inputType.addEventListener("change", this._toggleElevationField);
+
+    containerWorkouts.addEventListener("click", this._moveToPopup.bind(this));
   }
 
-  // gets the position of the user
+  // Gets the position of the user
   _getPosition() {
     if (navigator.geolocation) {
       // geolocation api, first function is when successful other when not
@@ -95,7 +98,7 @@ class App {
     }
   }
 
-  // loads the map
+  // Loads the map
   _loadMap(position) {
     const { latitude } = position.coords;
     const { longitude } = position.coords;
@@ -105,7 +108,7 @@ class App {
 
     const coords = [latitude, longitude];
 
-    this.#map = L.map("map").setView(coords, 13);
+    this.#map = L.map("map").setView(coords, this.#mapZoomLevel);
 
     L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution:
@@ -116,13 +119,14 @@ class App {
     this.#map.on("click", this._showForm.bind(this));
   }
 
-  // displays the form in the sidebar
+  // Displays the form in the sidebar
   _showForm(mapE) {
     this.#mapEvent = mapE;
     form.classList.remove("hidden");
     inputDistance.focus();
   }
 
+  // Hides the form after the input is entered
   _hideForm() {
     // clear input fields
     inputDistance.value =
@@ -136,7 +140,7 @@ class App {
     setTimeout(() => (form.style.display = "grid"), 1000);
   }
 
-  // changes one of the inputs if its cycling or running
+  // Changes one of the inputs if its cycling or running
   _toggleElevationField() {
     inputElevation.closest(".form__row").classList.toggle("form__row--hidden");
     inputCadence.closest(".form__row").classList.toggle("form__row--hidden");
@@ -204,6 +208,7 @@ class App {
     this._hideForm();
   }
 
+  // Renders the marker on the map
   _renderWorkoutMarker(workout) {
     L.marker(workout.coords, {
       riseOnHover: true,
@@ -224,6 +229,7 @@ class App {
       .openPopup();
   }
 
+  // Adds the workout to the sidebar
   _renderWorkout(workout) {
     let html = `
         <li class="workout workout--${workout.type}" data-id="${workout.id}">
@@ -276,6 +282,26 @@ class App {
     }
 
     form.insertAdjacentHTML("afterend", html);
+  }
+
+  // Moves to the popup when user clicks on the item from the sidebar
+  _moveToPopup(e) {
+    const workoutEl = e.target.closest(".workout");
+
+    if (!workoutEl) return;
+
+    // finds the workout through the id
+    const workout = this.#workouts.find(
+      (work) => work.id === workoutEl.dataset.id
+    );
+
+    // pans to the workout
+    this.#map.setView(workout.coords, this.#mapZoomLevel, {
+      animate: true,
+      pan: {
+        duration: 1,
+      },
+    });
   }
 }
 
