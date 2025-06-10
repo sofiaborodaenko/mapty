@@ -8,6 +8,10 @@ const inputDuration = document.querySelector(".form__input--duration");
 const inputCadence = document.querySelector(".form__input--cadence");
 const inputElevation = document.querySelector(".form__input--elevation");
 
+const allBtns = document.querySelector(".buttons");
+const deleteWorkouts = document.querySelector(".btn--delete");
+const sortWorkouts = document.querySelector(".btn--sort");
+
 class Workout {
   date = new Date();
   id = (Date.now() + "").slice(-10);
@@ -62,15 +66,14 @@ class Cycling extends Workout {
   }
 }
 
-const run = new Running([30, -12], 5.2, 24, 178);
-const cycle = new Cycling([30, -12], 27, 95, 523);
-
 // Main class app that handles the loading of the map, position-coordinates, form, displaying markers
 class App {
   #map;
   #mapZoomLevel = 13;
   #mapEvent;
   #workouts = [];
+  #sortedWorkouts = this.#workouts;
+  #sorted = false;
 
   constructor() {
     // gets the users position on load
@@ -86,7 +89,15 @@ class App {
     // toggle the input type
     inputType.addEventListener("change", this._toggleElevationField);
 
+    // moves to marker on click
     containerWorkouts.addEventListener("click", this._moveToPopup.bind(this));
+
+    // deletes all the workouts on the local storage
+    deleteWorkouts.addEventListener("click", this._reset);
+
+    this._removeButtons();
+
+    sortWorkouts.addEventListener("click", this._sortByDistance.bind(this));
   }
 
   // Gets the position of the user
@@ -200,6 +211,9 @@ class App {
 
     // add object to workout array
     this.#workouts.push(workout);
+
+    // adds the buttons
+    this._removeButtons();
 
     // render workout on list
     this._renderWorkout(workout);
@@ -325,9 +339,39 @@ class App {
   }
 
   // Clears the local storage
-  reset() {
+  _reset() {
     localStorage.removeItem("workouts");
     location.reload();
+    this._removeButtons();
+  }
+
+  // Removes/adds the buttons
+  _removeButtons() {
+    if (!this.#workouts.length) {
+      deleteWorkouts.classList.add("hidden");
+      sortWorkouts.classList.add("hidden");
+    } else {
+      deleteWorkouts.classList.remove("hidden");
+      sortWorkouts.classList.remove("hidden");
+    }
+  }
+
+  // Sorts the workouts by distance
+  _sortByDistance() {
+    // gets all of the workouts logged onto the sidebar
+    const allWorkouts = document.querySelectorAll(
+      ".workout.workout--running, .workout.workout--cycling"
+    );
+    // removes the elements
+    allWorkouts.forEach((el) => el.remove());
+
+    // sorts/unsorts the workouts if the buttons is selected
+    this.#sortedWorkouts = this.#sorted
+      ? this.#workouts.slice().sort((a, b) => a.distance - b.distance)
+      : this.#workouts;
+
+    this.#sortedWorkouts.forEach((workout) => this._renderWorkout(workout));
+    this.#sorted = !this.#sorted;
   }
 }
 

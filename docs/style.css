@@ -7,6 +7,10 @@
   --color-light--1: #aaa;
   --color-light--2: #ececec;
   --color-light--3: rgb(214, 222, 224);
+
+  --color-delete: rgb(199, 28, 28);
+  --color-delete--2: rgb(171, 15, 15);
+  --color-sort: rgb(117, 116, 116);
 }
 
 * {
@@ -21,7 +25,7 @@ html {
 }
 
 body {
-  font-family: 'Manrope', sans-serif;
+  font-family: "Manrope", sans-serif;
   color: var(--color-light--2);
   font-weight: 400;
   line-height: 1.6;
@@ -217,4 +221,48 @@ a:visited {
 }
 .cycling-popup .leaflet-popup-content-wrapper {
   border-left: 5px solid var(--color-brand--1);
+}
+
+/*BUTTONS CSS*/
+
+.buttons {
+  display: flex;
+  justify-content: space-evenly;
+}
+
+.btn {
+  border: none;
+  border-radius: 5px;
+  padding: 1.5rem 2.25rem;
+  font-size: 1.5rem;
+  font-weight: 300;
+  cursor: pointer;
+  align-self: center;
+
+  color: var(--color-light--3);
+}
+
+.btn:active {
+  transform: translateY(3px);
+  transition: all 0.05s ease-out;
+}
+
+.btn--delete {
+  background-color: var(--color-delete);
+}
+
+.btn--sort {
+  background-color: var(--color-light--1);
+}
+
+.btn--delete:active {
+  background-color: var(--color-delete--2);
+}
+
+.btn--sort:active {
+  background-color: var(--color-sort);
+}
+
+.btn--delete.hidden, .btn--sort.hidden {
+  display: none;
 }
