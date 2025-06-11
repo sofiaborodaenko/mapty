@@ -74,6 +74,8 @@ class App {
   #mapZoomLevel = 13;
   #mapEvent;
   #workouts = [];
+  // #markersArr = [];
+  #markers = new Map();
   #sortedWorkouts = this.#workouts;
   #sorted = false;
 
@@ -238,7 +240,7 @@ class App {
 
   // Renders the marker on the map
   _renderWorkoutMarker(workout) {
-    L.marker(workout.coords, {
+    const newMarker = L.marker(workout.coords, {
       riseOnHover: true,
     })
       .addTo(this.#map)
@@ -255,6 +257,8 @@ class App {
         `${workout.type === "running" ? "🏃‍♂️" : "🚴‍♀️"} ${workout.description}`
       )
       .openPopup();
+
+    this.#markers.set(workout.id, newMarker); // sets the marker and the workout id
   }
 
   // Adds the workout to the sidebar
@@ -345,22 +349,26 @@ class App {
       ".workout.workout--running, .workout.workout--cycling"
     );
 
-    console.log(workout);
-    console.log(this.#workouts);
-
     const workoutID = workout.dataset.id; // gets the id
 
     const workoutIndex = this.#workouts.findIndex((w) => w.id === workoutID); // gets index
     this.#workouts.splice(workoutIndex, 1); // removes from array
-    // resets local storage
-    this._setLocalStorage();
-    // location.reload();
-    // console.log(this.#workouts);
+
+    this._setLocalStorage(); // resets local storage
 
     // removes the element from the sidebar
     allWorkoutsLogged.forEach((el) => {
       if (el.dataset.id === workoutID) el.remove();
     });
+
+    this._removeButtons(); // removes the buttons if needed
+
+    //removes marker
+    const markerEl = this.#markers.get(workoutID);
+    if (markerEl) {
+      this.#map.removeLayer(markerEl);
+      this.#markers.delete(workoutID);
+    }
   }
 
   _setLocalStorage() {
