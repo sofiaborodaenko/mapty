@@ -26,7 +26,10 @@ A dynamic map-based workout logging app built using JavaScript and Leaflet.js. U
 
 ## 🧠 What I Did
 
-My main contribution was developing the entire JavaScript logic that powers the interactivity, data handling, and map integration. 
+My main contribution was developing the JavaScript logic that powers interactivity, data handling, and map integration. 
+- Added a sort button and a delete button that successfully deletes all of the workouts
+- Added an individual delete button for each workout displayed
+- Incorporated a visual alert message if website cannot access the users location
 
 ## 📘 Credits
 
